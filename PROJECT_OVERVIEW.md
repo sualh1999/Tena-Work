@@ -87,6 +87,7 @@ The workflow for a candidate is focused on ease of use and discovering relevant 
         *   **Pending:** The application has been submitted, but the employer has not yet viewed it.
         *   **Viewed:** The employer has seen the application in their list of candidates.
         *   **Shortlisted:** The employer has marked the candidate as a person of interest.
+        *   **Rejected:** The employer has decided not to proceed with the candidate.
 
 ### B. The Employer/Recruiter Journey
 
