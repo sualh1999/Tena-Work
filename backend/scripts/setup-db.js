@@ -1,5 +1,6 @@
 const { Client } = require('pg');
 const crypto = require('crypto');
+require('dotenv').config();
 
 async function setupDatabase() {
   // Connect to PostgreSQL without specifying a database

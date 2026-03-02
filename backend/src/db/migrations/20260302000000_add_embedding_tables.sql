@@ -1,6 +1,6 @@
--- Add pgvector extension and embedding tables
 -- Migration: 20260302000000_add_embedding_tables
 
+-- UP
 -- Enable pgvector extension
 CREATE EXTENSION IF NOT EXISTS vector;
 
@@ -42,3 +42,12 @@ CREATE TRIGGER update_candidate_embeddings_timestamp
   BEFORE UPDATE ON candidate_embeddings
   FOR EACH ROW
   EXECUTE FUNCTION update_embedding_timestamp();
+
+-- DOWN
+DROP TRIGGER IF EXISTS update_candidate_embeddings_timestamp ON candidate_embeddings;
+DROP TRIGGER IF EXISTS update_job_embeddings_timestamp ON job_embeddings;
+DROP FUNCTION IF EXISTS update_embedding_timestamp;
+DROP TABLE IF EXISTS candidate_embeddings;
+DROP TABLE IF EXISTS job_embeddings;
+-- Note: We generally don't drop extensions in migrations as other tables might rely on them
+-- DROP EXTENSION IF EXISTS vector;

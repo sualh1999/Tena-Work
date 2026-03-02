@@ -48,7 +48,7 @@ JWT_SECRET=replace_with_secure_secret
 4. **Setup database:**
 ```bash
 # Create database and extensions
-node scripts/quick-setup.js
+npm run db:setup
 
 # Run migrations
 npm run migrate:up

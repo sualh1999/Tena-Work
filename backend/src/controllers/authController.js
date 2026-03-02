@@ -13,8 +13,19 @@ const { getFileUrl } = require('../utils/fileUpload');
 
 async function registerProfessional(req, res, next) {
   try {
-    const data = typeof req.body.data === 'string' ? JSON.parse(req.body.data) : req.body;
-    
+    let data;
+    if (typeof req.body.data === 'string') {
+      try {
+        data = JSON.parse(req.body.data);
+      } catch (e) {
+        throw new ValidationError('Invalid JSON in form data', [
+          { field: 'data', message: 'Must be valid JSON' }
+        ]);
+      }
+    } else {
+      data = req.body;
+    }
+
     const {
       full_name,
       location,
@@ -116,8 +127,19 @@ async function registerProfessional(req, res, next) {
 
 async function registerEmployer(req, res, next) {
   try {
-    const data = typeof req.body.data === 'string' ? JSON.parse(req.body.data) : req.body;
-    
+    let data;
+    if (typeof req.body.data === 'string') {
+      try {
+        data = JSON.parse(req.body.data);
+      } catch (e) {
+        throw new ValidationError('Invalid JSON in form data', [
+          { field: 'data', message: 'Must be valid JSON' }
+        ]);
+      }
+    } else {
+      data = req.body;
+    }
+
     const {
       company_name,
       company_description,

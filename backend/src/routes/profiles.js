@@ -11,7 +11,7 @@ router.get('/me', authenticate, profileController.getMyProfile);
 router.put(
   '/me',
   authenticate,
-  upload.single('resume'), // Will also handle 'logo' field
+  upload.fields([{ name: 'resume', maxCount: 1 }, { name: 'logo', maxCount: 1 }]),
   profileController.updateMyProfile
 );
 

@@ -6,7 +6,7 @@ const WorkExperience = require('../models/WorkExperience');
 const CandidateEmbedding = require('../models/CandidateEmbedding');
 const aiService = require('../services/aiService');
 const { buildProfileText } = require('../utils/textBuilder');
-const { NotFoundError, ForbiddenError } = require('../utils/errors');
+const { NotFoundError, ForbiddenError, ValidationError } = require('../utils/errors');
 const { getFileUrl } = require('../utils/fileUpload');
 
 async function getMyProfile(req, res, next) {
@@ -42,7 +42,18 @@ async function updateMyProfile(req, res, next) {
     const userType = req.user.userType;
 
     // Parse data if it's multipart/form-data
-    const data = typeof req.body.data === 'string' ? JSON.parse(req.body.data) : req.body;
+    let data;
+    if (typeof req.body.data === 'string') {
+      try {
+        data = JSON.parse(req.body.data);
+      } catch (e) {
+        throw new ValidationError('Invalid JSON in form data', [
+          { field: 'data', message: 'Must be valid JSON' }
+        ]);
+      }
+    } else {
+      data = req.body;
+    }
 
     if (userType === 'professional') {
       // Update user basic info
@@ -54,7 +65,9 @@ async function updateMyProfile(req, res, next) {
       }
 
       // Handle resume upload
-      const resumeUrl = req.file ? getFileUrl(req.file.filename, 'resume') : undefined;
+      const resumeUrl = req.files && req.files['resume'] 
+        ? getFileUrl(req.files['resume'][0].filename, 'resume') 
+        : undefined;
 
       // Update professional profile
       const profileData = {
@@ -109,7 +122,9 @@ async function updateMyProfile(req, res, next) {
       }
 
       // Handle logo upload
-      const logoUrl = req.file ? getFileUrl(req.file.filename, 'logo') : undefined;
+      const logoUrl = req.files && req.files['logo'] 
+        ? getFileUrl(req.files['logo'][0].filename, 'logo') 
+        : undefined;
 
       // Update employer profile
       const profileData = {

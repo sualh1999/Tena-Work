@@ -2,6 +2,11 @@ const pool = require('../config/database');
 const bcrypt = require('bcrypt');
 
 async function seedDatabase() {
+  if (process.env.NODE_ENV === 'production' && !process.env.FORCE_SEED) {
+    console.error('Error: Seeding is disabled in production environment. Use FORCE_SEED=true to override.');
+    process.exit(1);
+  }
+
   const client = await pool.connect();
   
   try {

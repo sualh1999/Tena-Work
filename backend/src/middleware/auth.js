@@ -1,6 +1,5 @@
 const { verifyToken } = require('../utils/jwt');
 const { UnauthorizedError, ForbiddenError } = require('../utils/errors');
-const User = require('../models/User');
 const EmployerProfile = require('../models/EmployerProfile');
 
 async function authenticate(req, res, next) {

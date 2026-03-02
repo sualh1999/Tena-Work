@@ -81,16 +81,13 @@ class CandidateEmbedding {
     }
 
     if (filters.yearsOfExperience) {
-      // Calculate years of experience from work_experience table
+      // Calculate years of experience from work_experience table (using days / 365.25)
       query += `
         AND EXISTS (
           SELECT 1 FROM work_experience we
           WHERE we.user_id = ce.user_id
           GROUP BY we.user_id
-          HAVING SUM(
-            EXTRACT(YEAR FROM COALESCE(we.end_date, CURRENT_DATE)) - 
-            EXTRACT(YEAR FROM we.start_date)
-          ) >= $${paramCount}
+          HAVING SUM(COALESCE(we.end_date, CURRENT_DATE) - we.start_date) / 365.25 >= $${paramCount}
         )
       `;
       values.push(filters.yearsOfExperience);

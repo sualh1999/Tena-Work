@@ -34,10 +34,15 @@ const storage = multer.diskStorage({
 // File filter
 const fileFilter = (req, file, cb) => {
   if (file.fieldname === 'resume') {
-    // Accept PDF, DOC, DOCX
-    const allowedTypes = /pdf|doc|docx/;
-    const extname = allowedTypes.test(path.extname(file.originalname).toLowerCase());
-    const mimetype = allowedTypes.test(file.mimetype);
+    const allowedMimes = [
+      'application/pdf',
+      'application/msword',
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+    ];
+    const allowedExts = ['.pdf', '.doc', '.docx'];
+    
+    const extname = allowedExts.includes(path.extname(file.originalname).toLowerCase());
+    const mimetype = allowedMimes.includes(file.mimetype);
     
     if (extname && mimetype) {
       return cb(null, true);
@@ -45,10 +50,11 @@ const fileFilter = (req, file, cb) => {
       cb(new Error('Only PDF, DOC, and DOCX files are allowed for resumes'));
     }
   } else if (file.fieldname === 'logo') {
-    // Accept images
-    const allowedTypes = /jpeg|jpg|png|gif/;
-    const extname = allowedTypes.test(path.extname(file.originalname).toLowerCase());
-    const mimetype = allowedTypes.test(file.mimetype);
+    const allowedMimes = ['image/jpeg', 'image/png', 'image/gif'];
+    const allowedExts = ['.jpeg', '.jpg', '.png', '.gif'];
+    
+    const extname = allowedExts.includes(path.extname(file.originalname).toLowerCase());
+    const mimetype = allowedMimes.includes(file.mimetype);
     
     if (extname && mimetype) {
       return cb(null, true);
