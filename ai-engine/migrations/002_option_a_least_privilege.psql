@@ -1,0 +1,38 @@
+-- 002_option_a_least_privilege.psql
+-- Purpose: Option A (shared backend DB) hardening.
+-- Creates a NOLOGIN group role and grants least-privilege access for the AI Engine.
+--
+-- IMPORTANT (Postgres): `CREATE ROLE` cannot run inside a transaction block.
+-- Many migration runners wrap SQL files in a transaction by default, so this is
+-- provided as a manual/psql script.
+--
+-- How to use:
+--   1) Apply 001_init_pgvector.sql first.
+--   2) Run this script as a privileged DB user (needs CREATEROLE), outside a transaction.
+--
+-- Notes:
+-- - The AI Engine only needs SELECT on the embeddings tables for recommendations.
+-- - Backend should own writing/upserting embeddings.
+
+-- Group role (no login, no password in SQL)
+-- If this role already exists, skip this statement.
+CREATE ROLE tenawork_ai_engine NOLOGIN;
+
+-- Ensure the role can read the embeddings tables
+GRANT USAGE ON SCHEMA public TO tenawork_ai_engine;
+GRANT SELECT ON TABLE job_embeddings, candidate_embeddings TO tenawork_ai_engine;
+
+-- If future migrations recreate these tables, this helps keep privileges consistent.
+ALTER DEFAULT PRIVILEGES IN SCHEMA public
+  GRANT SELECT ON TABLES TO tenawork_ai_engine;
+
+-- Optional tightening (uncomment if you want to be strict):
+-- REVOKE CREATE ON SCHEMA public FROM tenawork_ai_engine;
+-- REVOKE ALL ON DATABASE your_db_name FROM tenawork_ai_engine;
+
+-- Create the LOGIN user separately (example):
+--   CREATE ROLE tenawork_ai_engine_login LOGIN PASSWORD '...';
+--   GRANT tenawork_ai_engine TO tenawork_ai_engine_login;
+--
+-- Then use this login role in AI Engine's DATABASE_URL:
+--   postgresql://tenawork_ai_engine_login:...@host:5432/tenawork
