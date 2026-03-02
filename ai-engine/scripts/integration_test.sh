@@ -4,6 +4,15 @@ set -euo pipefail
 BASE_URL="${BASE_URL:-http://localhost:8000}"
 INTERNAL_KEY="${AI_INTERNAL_KEY:-${INTERNAL_KEY:-}}"
 
+# If key isn't present in env, try reading it from ../.env
+if [[ -z "$INTERNAL_KEY" ]]; then
+  SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+  DOTENV_PATH="$SCRIPT_DIR/../.env"
+  if [[ -f "$DOTENV_PATH" ]]; then
+    INTERNAL_KEY=$(grep -E '^AI_INTERNAL_KEY=' "$DOTENV_PATH" | head -n 1 | cut -d '=' -f 2- | tr -d '"' | tr -d "'" | tr -d '\r' || true)
+  fi
+fi
+
 if [[ -z "$INTERNAL_KEY" ]]; then
   echo "Set AI_INTERNAL_KEY (or INTERNAL_KEY) env var." >&2
   exit 1
