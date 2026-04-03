@@ -31,9 +31,10 @@ async def recommend_jobs(
 ) -> list[dict]:
     sql = """
         SELECT
-            job_id AS id,
+            id,
             GREATEST(0.0, LEAST(1.0, (1.0 - (embedding <=> $1::vector) / 2.0))) AS score
-        FROM job_embeddings
+        FROM jobs
+        WHERE embedding IS NOT NULL
         ORDER BY embedding <=> $1::vector
         LIMIT $2
     """
@@ -50,10 +51,10 @@ async def recommend_candidates(
     # We keep hard filtering out of the AI service; backend passes candidate_ids.
     sql = """
         SELECT
-            user_id AS id,
+            id,
             GREATEST(0.0, LEAST(1.0, (1.0 - (embedding <=> $1::vector) / 2.0))) AS score
-        FROM candidate_embeddings
-        WHERE user_id = ANY($2::bigint[])
+        FROM users
+        WHERE id = ANY($2::bigint[]) AND embedding IS NOT NULL
         ORDER BY embedding <=> $1::vector
         LIMIT $3
     """
